@@ -30,10 +30,10 @@ def get_all_users() -> flask.Response:
     return flask.jsonify(users)
 
 
-@app.route('/users/add')
+@app.route('/users/add', methods=['POST'])
 def create_user() -> flask.Response:
     """ Create a new user and return a json with the newly created user"""
-    request_body = flask.request.data
+    request_body = flask.request.get_json()
     users_repo = db.UsersRepository(redis_db)
     new_user = db.User(
         id=request_body['id'],
@@ -41,7 +41,11 @@ def create_user() -> flask.Response:
         date_of_birth=request_body['date_of_birth'],
         number_of_pets=request_body.get('number_of_pets')
     )
-    users_repo.add_user(new_user)
+
+    try:
+        users_repo.add_user(new_user)
+    except db.UserAlreadyExistsError as e:
+        return flask.Response(str(e), status=400)
 
     return flask.jsonify(dataclasses.asdict(new_user))
 
