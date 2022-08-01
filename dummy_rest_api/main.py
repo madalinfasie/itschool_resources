@@ -16,7 +16,7 @@ def get_all_users() -> flask.Response:
     This endpoint supports filtering by name and number_of_pets
     via query params
     """
-    supported_filters = ('name', 'number_of_pets')
+    supported_filters = ('name', 'number_of_pets', 'date_of_birth')
     query_params = flask.request.args
     if not os.path.exists(DB_PATH):
         return flask.Response('No data in database', status=400)
