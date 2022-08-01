@@ -1,13 +1,13 @@
 import dataclasses
+import os
 
 import flask
-import redis
 
 import db
 
 
 app = flask.Flask(__name__)
-redis_db = redis.Redis(host='localhost', port=6379, db=0)
+DB_PATH = f'{os.path.dirname(__file__)}/db.json'
 
 
 @app.route('/users')
@@ -18,8 +18,12 @@ def get_all_users() -> flask.Response:
     """
     supported_filters = ('name', 'number_of_pets')
     query_params = flask.request.args
-    users_repo = db.UsersRepository(redis_db)
-    users = users_repo.get_users()
+    if not os.path.exists(DB_PATH):
+        return flask.Response('No data in database', status=400)
+
+    with open(DB_PATH, 'r') as f:
+        users_repo = db.UsersRepository(f)
+        users = users_repo.get_users()
 
     for param in query_params:
         if param not in supported_filters:
@@ -34,18 +38,19 @@ def get_all_users() -> flask.Response:
 def create_user() -> flask.Response:
     """ Create a new user and return a json with the newly created user"""
     request_body = flask.request.get_json()
-    users_repo = db.UsersRepository(redis_db)
     new_user = db.User(
-        id=request_body['id'],
-        name=request_body['name'],
-        date_of_birth=request_body['date_of_birth'],
-        number_of_pets=request_body.get('number_of_pets')
-    )
+            id=request_body['id'],
+            name=request_body['name'],
+            date_of_birth=request_body['date_of_birth'],
+            number_of_pets=request_body.get('number_of_pets')
+        )
 
-    try:
-        users_repo.add_user(new_user)
-    except db.UserAlreadyExistsError as e:
-        return flask.Response(str(e), status=400)
+    with open(DB_PATH, 'w+') as f:
+        users_repo = db.UsersRepository(f)
+        try:
+            users_repo.add_user(new_user)
+        except db.UserAlreadyExistsError as e:
+            return flask.Response(str(e), status=400)
 
     return flask.jsonify(dataclasses.asdict(new_user))
 
@@ -53,5 +58,6 @@ def create_user() -> flask.Response:
 @app.route('/users/<id>')
 def get_user_by_id(id: int) -> flask.Response:
     """ Get a user by its id """
-    users_repo = db.UsersRepository(redis_db)
-    return flask.jsonify(users_repo.get_user_by_id(int(id)))
+    with open(DB_PATH, 'r') as f:
+        users_repo = db.UsersRepository(f)
+        return flask.jsonify(users_repo.get_user_by_id(int(id)))

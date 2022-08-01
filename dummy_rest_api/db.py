@@ -2,8 +2,6 @@ import dataclasses
 import typing as t
 import json
 
-import redis
-
 
 class UserAlreadyExistsError(Exception):
     pass
@@ -18,20 +16,27 @@ class User:
 
 
 class UsersRepository:
-    def __init__(self, redis_db: redis.Redis):
-        self.client = redis_db
+    def __init__(self, file_handler):
+        self.file = file_handler
 
-    def get_users(self) -> t.Dict[str, t.Any]:
-        return [json.loads(user) for user in self.client.lrange('users', start=0, end=-1)]
+    def get_users(self) -> t.List[t.Dict[str, t.Any]]:
+        self.file.seek(0)
+        content = self.file.read()
+        if not content:
+            return []
+
+        return json.loads(content)
 
     def add_user(self, user: User) -> None:
-        if self.check_user_exists(user):
+        users = self.get_users()
+        if self.check_user_exists(user, users):
             raise UserAlreadyExistsError(f'User with id {user.id} already exists')
 
-        self.client.rpush('users', json.dumps(dataclasses.asdict(user)))
+        users.append(dataclasses.asdict(user))
+        json.dump(users, self.file)
 
-    def check_user_exists(self, user: User) -> bool:
-        for db_user in self.get_users():
+    def check_user_exists(self, user: User, users: t.List[t.Dict[str, t.Any]]) -> bool:
+        for db_user in users:
             if db_user['id'] == user.id:
                 return True
 
