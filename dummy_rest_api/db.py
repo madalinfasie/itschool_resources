@@ -33,6 +33,9 @@ class UsersRepository:
             raise UserAlreadyExistsError(f'User with id {user.id} already exists')
 
         users.append(dataclasses.asdict(user))
+        self.file.seek(0)
+        self.file.truncate()
+
         json.dump(users, self.file)
 
     def check_user_exists(self, user: User, users: t.List[t.Dict[str, t.Any]]) -> bool:
