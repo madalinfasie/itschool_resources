@@ -45,7 +45,7 @@ def create_user() -> flask.Response:
             number_of_pets=request_body.get('number_of_pets')
         )
 
-    with open(DB_PATH, 'w+') as f:
+    with open(DB_PATH, 'a+') as f:
         users_repo = db.UsersRepository(f)
         try:
             users_repo.add_user(new_user)
