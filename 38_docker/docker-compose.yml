@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  web:
+    build: ./api
+    environment:
+      - FLASK_DEBUG=true
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./api:/code
+    command:
+      flask run --debugger --host 0.0.0.0 --port 5000
+  random-generator:
+    build: ./random_generator
+    environment:
+      - FLASK_DEBUG=true
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./random_generator:/code
+    depends_on:
+      - my-redis
+    command:
+      flask run --debugger --host 0.0.0.0 --port 5001
+  my-redis:
+    image: "redis:alpine"
+

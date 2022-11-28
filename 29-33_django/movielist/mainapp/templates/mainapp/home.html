@@ -1,0 +1,12 @@
+{% extends 'mainapp/header.html' %}
+
+{% block content %}
+    <h1>Papagalul meu</h1>
+    <p>Nume: {{ nume }} | Varsta: {{ varsta }}</p>
+    {% if varsta > 5 %} ceva html {% else %} altceva {% endif %}
+    {% include 'mainapp/includes/prezentare.html' %}
+
+    {% for movie in movies %}
+        <p>{{ movie.title }} - {{ movie.release_date }}</p>
+    {% endfor %}
+{% endblock %}

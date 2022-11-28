@@ -1,0 +1,11 @@
+{% extends 'mainapp/header.html' %}
+
+{% block content %}
+    <h1>Introduceti un nou film</h1>
+
+    <form action="{% url 'add' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn btn-primary" type="submit" value="Add">
+    </form>
+{% endblock %}
