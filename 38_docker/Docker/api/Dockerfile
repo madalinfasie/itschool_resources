@@ -24,6 +24,8 @@ RUN apt-get update -y \
 COPY . ${CODE}
 WORKDIR ${CODE}
 
+# pipenv
+# poetry
 # Install the python packages
 RUN pip install flask gunicorn requests
 

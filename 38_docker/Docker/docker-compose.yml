@@ -4,6 +4,7 @@ services:
     build: ./api
     environment:
       - FLASK_DEBUG=true
+      - FLASK_ENV=development
     ports:
       - "5000:5000"
     volumes:

@@ -33,6 +33,10 @@ class AlertManager:
             if isinstance(subscriber, event_type):
                 subscriber.update(message)
 
+    def notify_all(self, message):
+        for subscriber in self.subscribers:
+            subscriber.update(message)
+
 
 class Application:
     def __init__(self, alert_manager) -> None:
@@ -40,13 +44,15 @@ class Application:
 
     def actualizare_preturi(self):
         print('Ceva job de actualizare preturi...')
-        self.alert_manager.notify_subscribers(SmsSubscriber, 'Preturi actualizate, intra pe aplicatie')
-        self.alert_manager.notify_subscribers(EmailSubscriber, 'Preturi actualizate, intra pe aplicatie')
-
+        self.alert_manager.notify_subscribers(
+            SmsSubscriber, 'Preturi actualizate, intra pe aplicatie')
+        self.alert_manager.notify_subscribers(
+            EmailSubscriber, 'Preturi actualizate, intra pe aplicatie')
 
     def actualizare_termeni(self):
         print('Ceva job de actualizare termeni si conditii...')
-        self.alert_manager.notify_subscribers(EmailSubscriber, 'Au fost actualizate termenii si conditiile')
+        self.alert_manager.notify_subscribers(
+            EmailSubscriber, 'Au fost actualizate termenii si conditiile')
 
 
 if __name__ == '__main__':
