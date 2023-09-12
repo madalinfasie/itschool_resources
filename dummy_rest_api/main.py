@@ -29,7 +29,7 @@ def get_all_users() -> flask.Response:
         if param not in supported_filters:
             continue
 
-        users = [user for user in users if user[param].lower() == query_params[param].lower()]
+        users = [user for user in users if str(user[param]).lower() == str(query_params[param]).lower()]
 
     return flask.jsonify(users)
 
